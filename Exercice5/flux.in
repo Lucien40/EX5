@@ -12,7 +12,7 @@ Tb = 0
 kappa = 1.2
 rho = 1.2
 Ccoef = 1e3
-tfin = .1
+tfin = 1
 dt = 1e-4
 
 % Parametres numeriques :

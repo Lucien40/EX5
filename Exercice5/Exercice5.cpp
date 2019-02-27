@@ -8,8 +8,8 @@
 using namespace std;
 
 double puissance(vector<vector<double> > const& T, double const& kappa,
-                 double const& h, double const& x1, double const& x2,
-                 double const& y1, double const& y2);
+                 double const& L, double const& h, double const& x1,
+                 double const& x2, double const& y1, double const& y2);
 
 int main(int argc, char* argv[]) {
   string inputPath("configuration.in");  // Fichier d'input par defaut
@@ -74,7 +74,7 @@ int main(int argc, char* argv[]) {
 
   for (size_t i = 0; i < flag.size(); i++) {
     for (size_t j = 0; j < flag.size(); j++) {
-      if (i * h <= yb && i * h >= ya) {
+      if (i * h <= L - ya && i * h >= L - yb) {
         if (j * h <= xb && j * h >= xa) {
           flag[i][j] = true;
           T[i][j] = Tc;
@@ -127,9 +127,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Diagnostiques:
-    output_P << iter * dt << " " << puissance(T, kappa, h, xa, xb, ya, yb)
-             << " " << puissance(T, kappa, h, xc, xd, ya, yb) << " "
-             << puissance(T, kappa, h, xa, xd, ya, yb) << endl;
+    output_P << iter * dt << " " << puissance(T, kappa, L, h, xa, xb, ya, yb)
+             << " " << puissance(T, kappa, L, h, xc, xd, ya, yb) << " "
+             << puissance(T, kappa, L, h, xa, xd, ya, yb) << endl;
   }
   output_P.close();
 
@@ -144,7 +144,30 @@ int main(int argc, char* argv[]) {
 // TODO: Calculer la puissance calorifique emise/recue par le rectangle allant
 // de (x1,y1) a (x2,y2)
 double puissance(vector<vector<double> > const& T, double const& kappa,
-                 double const& h, double const& x1, double const& x2,
-                 double const& y1, double const& y2) {
-  return 0;
+                 double const& L, double const& h, double const& x1,
+                 double const& x2, double const& y1, double const& y2) {
+  double p(0);
+  size_t N = T.size();
+  vector<vector<double> > jy(N, vector<double>(N + 1));
+  vector<vector<double> > jx(N + 1, vector<double>(N));
+
+  for (size_t i = 0; i < T.size() - 1; i++) {
+    for (size_t j = 0; j < T.size(); j++) {
+      jx[j][i] = -kappa * (T[j][i + 1] - T[j][i]) / h;
+      jy[i][j] = -kappa * (T[i + 1][j] - T[i][j]) / h;
+    }
+  }
+
+  size_t j1(floor(x1 / h));
+  size_t j2(ceil(x2 / h));
+  size_t i1(floor((L - y2) / h));
+  size_t i2(ceil((L - y1) / h));
+
+  for (size_t j = j1; j < j2; j++) {
+    p += h * jy[i1][j] - h * jy[i2 + 1][j];
+  }
+  for (size_t i = i1; i <= i2; i++) {
+    p += h * jx[i][j1 - 1] - h * jx[i][j2 + 1];
+  }
+  return p;
 }
