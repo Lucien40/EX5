@@ -1,0 +1,21 @@
+% Parametres physiques :
+L = .1
+xa = .02
+xb = .04
+xc = .075
+xd = .085
+ya = .03
+yb = .08
+Tc = 200
+Tf = -100
+Tb = 0
+kappa = 1.2
+rho = 1.2
+Ccoef = 1e3
+tfin = .1
+dt = 1e-4
+
+% Parametres numeriques :
+N = 40
+eps = 1
+output = output
