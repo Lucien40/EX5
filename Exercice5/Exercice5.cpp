@@ -96,13 +96,15 @@ int main(int argc, char* argv[]) {
     }
   }
 
-  double max(11);
+  double max(eps);
   // Iterations:
   //////////////////////////////////////
   // TODO: Modifier la condition de sortie de la boucle temporelle pour tester
   // si l'etat stationnaire est atteint.
-  for (int iter = 0; iter * dt < tfin && max > eps; ++iter) {
+
+  for (int iter = 0; iter * dt < tfin && max >= eps; ++iter) {
     // TODO: Schema a 2 niveaux et calcul de max(|dT/dt|)
+    cout << max << endl;
 
     for (size_t i = 0; i < N + 1; i++) {
       for (size_t j = 0; j < N + 1; j++) {
@@ -136,7 +138,7 @@ int main(int argc, char* argv[]) {
   // Ecriture de la temperature finale:
   for (int i(0); i < N + 1; ++i)
     for (int j(0); j < N + 1; ++j)
-      output_T << j * h << " " << i * h << " " << T[i][j] << endl;
+      output_T << j * h << " " << L - i * h << " " << T[i][j] << endl;
   output_T.close();
   return 0;
 }
@@ -148,26 +150,21 @@ double puissance(vector<vector<double> > const& T, double const& kappa,
                  double const& x2, double const& y1, double const& y2) {
   double p(0);
   size_t N = T.size();
-  vector<vector<double> > jy(N, vector<double>(N + 1));
-  vector<vector<double> > jx(N + 1, vector<double>(N));
-
-  for (size_t i = 0; i < T.size() - 1; i++) {
-    for (size_t j = 0; j < T.size(); j++) {
-      jx[j][i] = -kappa * (T[j][i + 1] - T[j][i]) / h;
-      jy[i][j] = -kappa * (T[i + 1][j] - T[i][j]) / h;
-    }
-  }
 
   size_t j1(floor(x1 / h));
   size_t j2(ceil(x2 / h));
   size_t i1(floor((L - y2) / h));
   size_t i2(ceil((L - y1) / h));
 
-  for (size_t j = j1; j < j2; j++) {
-    p += h * jy[i1][j] - h * jy[i2 + 1][j];
+  for (size_t j = j1; j <= j2; j++) {
+    double ptop = -kappa * (T[i1 - 1][j] - T[i1][j]);
+    double pbot = -kappa * (T[i2][j] - T[i2 + 1][j]);
+    p += ptop - pbot;
   }
   for (size_t i = i1; i <= i2; i++) {
-    p += h * jx[i][j1 - 1] - h * jx[i][j2 + 1];
+    double pleft = -kappa * (T[i][j1] - T[i][j1 - 1]);
+    double pright = -kappa * (T[i][j2 + 1] - T[i][j2]);
+    p += pright - pleft;
   }
   return p;
 }

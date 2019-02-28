@@ -1,6 +1,6 @@
 %% Chargement des resultats %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-output = 'output';
+output = 'flux';
 data = load([output '_T.out']);
 N = sqrt(length(data));
 Y = data(1:N,2);

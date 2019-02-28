@@ -17,5 +17,5 @@ dt = 1e-4
 
 % Parametres numeriques :
 N = 40
-eps = 1
+eps = 10
 output = output
